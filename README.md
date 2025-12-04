@@ -9,7 +9,7 @@ The docker setup creates the following services:
 ### Starting docker
 1. Build the liferay docker image using `docker-compose build`, this prepares the image
 2. Start the different docker containers using `docker-compose up`; note that the very first startup can take a while because liferay has to wait for the database to become available.
-3. Using your browser go to http://localhost:8080/ and login with test@liferay.com and password ABCabc123. (you have to change the password after first login)
+3. Using your browser go to http://localhost:8080/ and login with test@liferay.com and password 'test'. (you have to change the password after first login)
 4. Reindex the search indexes (only needed after initial startup or the database changes)
 
 When done you can stop everything using Ctrl+C or using the Docker Desktop App. The docker services are configured to restart automatically when you reboot unless they were stopped.
