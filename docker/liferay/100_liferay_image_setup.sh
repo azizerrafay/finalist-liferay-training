@@ -40,9 +40,6 @@ function copy_remove_dir {
 }
 
 function main {
-	copy_remove_dir "/home/liferay/configs/${LIFERAY_WORKSPACE_ENVIRONMENT}/scripts" scripts
-
-	copy_remove_dir "/home/liferay/configs/${LIFERAY_WORKSPACE_ENVIRONMENT}/patching" patching
 
 	copy_configs
 }
