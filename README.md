@@ -1,14 +1,10 @@
 # Liferay demo server
 
-Demo omgeving voor Liferay
-
 ## Docker
 The docker setup creates the following services:
 
 * mysql
 * liferay
-
-Er wordt geen basis setup ingericht, je krijgt een kale Liferay instantie; wel wordt de DB data opgeslagen op een docker volume, zodat e.e.a. bewaard blijft bij herstarts.
 
 ### Starting docker
 1. Build the liferay docker image using `docker-compose build`, this prepares the image
@@ -17,16 +13,6 @@ Er wordt geen basis setup ingericht, je krijgt een kale Liferay instantie; wel w
 4. Reindex the search indexes (only needed after initial startup or the database changes)
 
 When done you can stop everything using Ctrl+C or using the Docker Desktop App. The docker services are configured to restart automatically when you reboot unless they were stopped.
-
-### Working with the mock IDP
-To use the mock IDP configure it in the SAML Admin portlet as follows:
-
-	TODO: add SSO config
-
-Once the mock IDP is enabled, going to http://localhost:8080/ will redirect you to the mock IDP; the users that can be used are configured in
-docker/idp/simplesamlphp/config/authsources.php; Default users I've defined for now have username admin; password is 'admin'
-
-Note that you will have re rebuild and restart the idp docker image to have your changes take effect.
 
 ### Connecting to mysql from your host
 Edit the compose.yaml and enable the ports section for the mysql service. This exposes the port 3306 to your host environment so you can use MySQL Workbench (or another db tool of your choice) to connect to the database. The username/password for the database is preconfigured in the compose.yaml file.
