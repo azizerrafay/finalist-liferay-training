@@ -1,0 +1,55 @@
+services:
+  mysql:
+    user: "1000:50"
+    command: [
+      'mysqld',
+      '--character-set-server=utf8mb4',
+      '--collation-server=utf8mb4_0900_ai_ci'
+    ]
+    cap_add:
+      # Add capability to prevent mbind: Operation not permitted errors
+      - SYS_NICE
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: 'liferay'
+      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_USER: 'liferay'
+      MYSQL_PASSWORD: 'liferay'
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  mailcatcher:
+    image: stpaquet/alpinemailcatcher:latest
+    ports:
+      - "1080:1080"
+    restart: unless-stopped
+
+  liferay:
+    build:
+      context: .
+      dockerfile: docker/liferay/Dockerfile
+    depends_on:
+      - mysql
+      - mailcatcher
+    environment:
+      - LIFERAY_JPDA_ENABLED=true
+      - LIFERAY_UPGRADE_PERIOD_DATABASE_PERIOD_AUTO_PERIOD_RUN=true
+      - WAIT_HOSTS=mailcatcher:1025,mysql:3306
+      - LIFERAY_WORKSPACE_ENVIRONMENT=${LIFERAY_WORKSPACE_ENVIRONMENT:-docker}
+    ports:
+      - "8000:8000"
+      - "8080:8080"
+      - "11311:11311"
+    restart: unless-stopped
+    volumes:
+      - ./bundles/data/document_library:/opt/liferay/data/document_library
+      - ./bundles/deploy:/opt/liferay/deploy
+      - ./bundles/osgi/modules:/opt/liferay/osgi/modules
+      - ./bundles/osgi/war:/opt/liferay/osgi/war
+      - ./bundles/osgi/configs:/opt/liferay/osgi/configs
+
+volumes:
+  mysql-data:

@@ -1,0 +1,16 @@
+[Unit]
+Description=Liferay
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+WorkingDirectory=/home/ubuntu/liferay-demo
+User=ubuntu
+
+ExecStart=/usr/bin/docker-compose up -d --remove-orphans
+ExecStop=/usr/bin/docker-compose down
+
+[Install]
+WantedBy=multi-user.target
