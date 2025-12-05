@@ -32,18 +32,19 @@ import org.osgi.service.component.annotations.Reference;
 	immediate = true,
 	property = {
 		"panel.app.order:Integer=250",
-		"panel.category.key=" + PanelCategoryKeys.CONTROL_PANEL_SITES
+		"panel.category.key=" + PanelCategoryKeys.CONTROL_PANEL_SITES,
+			"javax.portlet.resource-bundle=content.Language",
 	},
 	service = PanelApp.class
 )
 public class ControlPanelDemo extends BasePanelApp {
 
 	@Reference
-	private PortletLocalService _portletLocalService;
+	private PortletLocalService portletLocalService;
 
 	@Override
 	public Portlet getPortlet() {
-		return _portletLocalService.getPortletById(
+		return portletLocalService.getPortletById(
 				getPortletId());
 	}
 

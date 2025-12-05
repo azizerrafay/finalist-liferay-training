@@ -16,17 +16,36 @@
 
 package nl.finalist.course.portlet.controlpanel;
 
+import com.liferay.journal.model.JournalArticle;
+import com.liferay.journal.service.JournalArticleLocalService;
+import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.PortletApp;
 import com.liferay.portal.kernel.portlet.LiferayPortletConfig;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+import com.liferay.portal.kernel.service.RoleLocalService;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
 
 import javax.portlet.Portlet;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletContext;
 import javax.portlet.PortletException;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
 
+import com.liferay.portal.kernel.util.LocaleUtil;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Liferay
@@ -47,9 +66,59 @@ import org.osgi.service.component.annotations.Component;
 		"javax.portlet.security-role-ref=administrator",
 		"javax.portlet.supports.mime-type=text/html"
 	},
-	service = Portlet.class
+	service = Portlet.class,
+		configurationPid = Constants.CONFIGURATION_PID
 )
 public class ControlPanelPortlet extends MVCPortlet {
+
+	private static final Log LOG = LogFactoryUtil.getLog(MethodHandles.lookup().lookupClass());
+
+
+	@Reference
+	JournalArticleLocalService journalArticleLocalService;
+
+
+	@SuppressWarnings("java:S3077")
+	private volatile  ControlPanelConfiguration controlPanelConfiguration;
+
+	@Activate
+	@Modified
+	protected void activate(Map<String, Object> properties) {
+
+		controlPanelConfiguration = ConfigurableUtil.createConfigurable(ControlPanelConfiguration.class, properties);
+
+		LOG.info("Reload Configuration : " + controlPanelConfiguration.groupId() + " : " + controlPanelConfiguration.structureId());
+	}
+
+	@Override
+	public void doView(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
+
+
+        long groupId = controlPanelConfiguration.groupId(); // SITE ID
+		long ddmStructureId = 	controlPanelConfiguration.structureId(); // DEMO
+
+		// Haal alle artikelen op van het type DEMO in de Site van het content type ( Structure ) DEMO
+		List<JournalArticle> articles = journalArticleLocalService.getArticlesByStructureId(
+		 groupId, ddmStructureId,-1 , -1, null);
+
+
+		List<String> items = new ArrayList<>();
+		// Voet alle artikel titels toe aan de lijst
+		articles.forEach( a ->
+			items.add(a.getTitle(LocaleUtil.getDefault()))
+		);
+
+		// Plaats de lijst me resultaten in het renderrequest als attribuut,
+		// zodat ze beschikbaar zijn in de view.jsp
+		renderRequest.setAttribute("items", items);
+		super.doView(renderRequest, renderResponse);
+	}
+
+	@Reference
+	UserLocalService userLocalService;
+
+	@Reference
+	RoleLocalService roleLocalService;
 
 	@Override
 	public void destroy() {
