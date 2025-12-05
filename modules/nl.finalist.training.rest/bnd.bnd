@@ -1,0 +1,4 @@
+Bundle-Name: nl.finalist.training.rest
+Bundle-SymbolicName: nl.finalist.training.rest
+Bundle-Version: 1.0.0
+Liferay-Configuration-Path: /configuration
